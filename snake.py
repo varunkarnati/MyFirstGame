@@ -1,7 +1,10 @@
+from typing import overload
 import pygame
 import random
 import os
+from pygame import mixer
 
+mixer.init()
 pygame.init()
 
 
@@ -19,7 +22,10 @@ clock = pygame.time.Clock()
 
 
 
+bgimg=pygame.image.load('bgimg.jpg')
+
 gameWindow=pygame.display.set_mode((swidth,sheight))
+bgimg=pygame.transform.scale(bgimg,(swidth,sheight)).convert_alpha()
 pygame.display.set_caption("Hungry Snake")
 pygame.display.update()
 
@@ -51,7 +57,8 @@ def welcome():
                 exit_game=True
             if event.type==pygame.KEYDOWN:
                 if event.key==pygame.K_SPACE:
-
+                    mixer.music.load("bgm.mp3")
+                    mixer.music.play(loops=50)
                     game_loop()
         pygame.display.update()
 
@@ -71,7 +78,7 @@ def game_loop():
     snake_y = 55
     snake_size = 18
     s_list = []
-    fps = 30
+    fps = 20
     velocityx = 0
     velocityy = 0
     food_x = random.randint(20, swidth / 2)
@@ -79,8 +86,9 @@ def game_loop():
     food_size = 16
     score = 0
     init_velocity=10
-
     s_length = 1
+
+
 
     while not exit_game :
         if (not os.path.exists("highscore.txt")):
@@ -92,6 +100,7 @@ def game_loop():
             with open("highscore.txt", "w") as f:
                 f.write(str(score))
             gameWindow.fill((46,42,87))
+            
             screen_text("Game Over! Press Enter To Continue", red, 100, 250)
 
             for event in pygame.event.get():
@@ -100,6 +109,8 @@ def game_loop():
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        mixer.music.load("bgm.mp3")
+                        mixer.music.play(loops=50)
                         game_loop()
 
         else:
@@ -122,7 +133,11 @@ def game_loop():
             snake_x+=velocityx
             snake_y+=velocityy
             if abs(snake_x-food_x)<10 and abs(snake_y-food_y)<10:
+                
                 score+=10
+                mixer.music.load("food.mp3")
+                mixer.music.play()
+                
 
                 s_length+=5
 
@@ -131,6 +146,7 @@ def game_loop():
                 pygame.draw.rect(gameWindow, red, [food_x, food_y, snake_size, snake_size])
 
             gameWindow.fill((62,27,124))
+            gameWindow.blit(bgimg,(0,0))
             screen_text(("Score:" + str(score )), red, 5, 5)
             if(score<=int(highscore)):
                 screen_text(("High Score:" + str(highscore )), red, 155, 5)
@@ -145,9 +161,13 @@ def game_loop():
             if len(s_list)>s_length:
                 del s_list[0]
             if head in s_list[:-1]:
+                mixer.music.load("gameover.mp3")
+                mixer.music.play()
                 game_over=True
 
             if snake_x<0 or snake_x>=swidth or snake_y<0 or snake_y>=sheight:
+                mixer.music.load('gameover.mp3')
+                mixer.music.play()
                 game_over=True
 
 
